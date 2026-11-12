@@ -1,5 +1,5 @@
-#!name=Locket Gold, 1-Min Video & Photobooth Direct Fix
-#!desc=Bản fix trực tiếp: Giữ kết nối bạn bè mượt mà 100%, mở khóa Gold, ép quay video 1 phút và định tuyến Photobooth AI chuẩn xác.
+#!name=Locket Gold & 1-Min Video Ultimate Fix (Clean)
+#!desc=Bản chuẩn fix triệt để lỗi đỏ: Mở khóa Locket Gold, Photobooth AI, giữ kết nối bạn bè ổn định và quay video 1 phút.
 #!author=MinhHiep08 (@minhhiep07)
 #!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Locket.png
 #!system=ios
@@ -17,11 +17,11 @@ DOMAIN-SUFFIX,ingest.sentry.io,REJECT
 firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 
 [URL Rewrite]
-# Ép toàn bộ yêu cầu xử lý bộ lọc và Photobooth AI bay thẳng đến Backend Render
-^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/(generateFilteredImage|filters|v\d+\/filters) https://locket-mod-backend.onrender.com/generateFilteredImage 307[cite: 1]
+# Điều hướng Photobooth AI Engine của Locket[cite: 1]
+^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage https://locket-mod-backend.onrender.com/generateFilteredImage 307[cite: 1]
 
 [Header Rewrite]
-# Xóa Cache & ETag chống lỗi 304 của RevenueCat và Firebase
+# Xóa Cache & ETag chống lỗi 304 đa nền tảng
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del x-revenuecat-etag
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del X-RevenueCat-ETag
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del if-none-match
@@ -36,13 +36,16 @@ firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 ^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del x-goog-if-none-match
 
 [Script]
-# Xóa Header yêu cầu
+# Xóa Header yêu cầu (Đã sửa chuẩn tên miền locket-vip)
 deleteHeader_RC = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
 deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
 
-# Kích hoạt gói thuê bao Gold & Ép thông số thời gian quay video 1 phút qua Firebase
+# Kích hoạt gói thuê bao & Ép thông số thời gian quay video 1 phút qua Firebase
 revenuecat = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_minhhiep08.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
 locket_rc = type=http-response,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Unlocked.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
+
+# Photobooth & Bộ lọc AI[cite: 1]
+locket_pb_req = type=http-request,pattern=^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Photobooth.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60[cite: 1]
 
 [MITM]
 ca-passphrase = Shadowrocket
