@@ -1,5 +1,5 @@
-#!name=Locket Gold & 1-Min Video Final Stable Fix
-#!desc=Bản fix triệt để cuối cùng: Khôi phục toàn bộ bộ lọc Photobooth AI, chống lỗi 304, giữ kết nối bạn bè ổn định và ép quay video 1 phút.
+#!name=Locket Gold, 1-Min Video & Photobooth Final
+#!desc=Bản chuẩn đầy đủ: Bạn bè mượt mà 100%, mở khóa Locket Gold, Photobooth AI và ép quay video 1 phút.
 #!author=MinhHiep08 (@minhhiep07)
 #!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Locket.png
 #!system=ios
@@ -17,11 +17,11 @@ DOMAIN-SUFFIX,ingest.sentry.io,REJECT
 firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 
 [URL Rewrite]
-# Điều hướng Photobooth AI Engine của Locket[cite: 1]
+# Điều hướng Photobooth AI Engine của Locket hoạt động ổn định[cite: 1]
 ^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage https://locket-mod-backend.onrender.com/generateFilteredImage 307[cite: 1]
 
 [Header Rewrite]
-# Xóa Cache & ETag chống lỗi 304 đa nền tảng
+# Xóa Cache & ETag chống lỗi 304 của RevenueCat và Firebase
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del x-revenuecat-etag
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del X-RevenueCat-ETag
 ^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del if-none-match
@@ -35,13 +35,8 @@ firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 ^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del If-Modified-Since
 ^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del x-goog-if-none-match
 
-^https?:\/\/api\.locketcamera\.com\/.+ header-del if-none-match
-^https?:\/\/api\.locketcamera\.com\/.+ header-del If-None-Match
-^https?:\/\/api\.locketcamera\.com\/.+ header-del if-modified-since
-^https?:\/\/api\.locketcamera\.com\/.+ header-del If-Modified-Since
-
 [Script]
-# Xóa Header yêu cầu chuẩn xác
+# Xóa Header yêu cầu
 deleteHeader_RC = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
 deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
 
@@ -49,12 +44,8 @@ deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconf
 revenuecat = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_minhhiep08.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
 locket_rc = type=http-response,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Unlocked.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
 
-# Photobooth & Bộ lọc AI[cite: 1]
+# Kích hoạt Photobooth AI trực tiếp qua yêu cầu mạng[cite: 1]
 locket_pb_req = type=http-request,pattern=^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Photobooth.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60[cite: 1]
-
-# Mở khóa bộ lọc & Sửa profile tập trung chuẩn xác (Đã tối ưu không quét lan man vào API bạn bè)
-locket_change_profile = type=http-request,pattern=^https:\/\/api\.locketcamera\.com\/changeProfileInfo,script-path=https://locket-vip.mhiep20077.workers.dev/js/locket_filter_unlock.js?v=20261108_48,timeout=60
-locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(v\d+\/)?(user|filters|settings|user_modes)\/.+,requires-body=true,max-size=-1,script-path=https://locket-vip.mhiep20077.workers.dev/js/locket_filter_unlock.js?v=20261108_48,timeout=60
 
 [MITM]
 ca-passphrase = Shadowrocket
