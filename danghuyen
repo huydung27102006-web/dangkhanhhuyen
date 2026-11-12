@@ -17,7 +17,7 @@ DOMAIN-SUFFIX,ingest.sentry.io,REJECT
 firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
 
 [URL Rewrite]
-# Ép toàn bộ yêu cầu xử lý bộ lọc và Photobooth AI bay thẳng đến Backend Render[cite: 1]
+# Ép toàn bộ yêu cầu xử lý bộ lọc và Photobooth AI bay thẳng đến Backend Render
 ^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/(generateFilteredImage|filters|v\d+\/filters) https://locket-mod-backend.onrender.com/generateFilteredImage 307[cite: 1]
 
 [Header Rewrite]
