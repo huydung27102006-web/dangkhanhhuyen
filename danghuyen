@@ -1,0 +1,63 @@
+#!name=Locket Gold & 1-Min Video Full Fixed Ultimate
+#!desc=Bản vá lỗi toàn diện cuối cùng: Đầy đủ Locket Gold, Photobooth AI, bộ lọc, chống lỗi 304, giữ kết nối bạn bè và ép quay video 1 phút.
+#!author=MinhHiep08 (@minhhiep07)
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Locket.png
+#!system=ios
+
+[Rule]
+AND,((DOMAIN,firebaseremoteconfig.googleapis.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,api.revenuecat.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,api.locketcamera.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN-SUFFIX,locketcamera.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,us-central1-locket-4252a.cloudfunctions.net),(PROTOCOL,UDP)),REJECT
+DOMAIN-SUFFIX,sentry.io,REJECT
+DOMAIN-SUFFIX,ingest.sentry.io,REJECT
+
+[Host]
+firebaseremoteconfigrealtime.googleapis.com = 0.0.0.0
+
+[URL Rewrite]
+# Điều hướng Photobooth AI Engine của Locket
+^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage https://locket-mod-backend.onrender.com/generateFilteredImage 307
+
+[Header Rewrite]
+# Xóa Cache & ETag chống lỗi 304 toàn diện (RevenueCat, Firebase, Locket)
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del x-revenuecat-etag
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del X-RevenueCat-ETag
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del if-none-match
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del If-None-Match
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del if-modified-since
+^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers) header-del If-Modified-Since
+
+^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del if-none-match
+^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del If-None-Match
+^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del if-modified-since
+^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del If-Modified-Since
+^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+ header-del x-goog-if-none-match
+
+^https?:\/\/api\.locketcamera\.com\/.+ header-del if-none-match
+^https?:\/\/api\.locketcamera\.com\/.+ header-del If-None-Match
+^https?:\/\/api\.locketcamera\.com\/.+ header-del if-modified-since
+^https?:\/\/api\.locketcamera\.com\/.+ header-del If-Modified-Since
+
+[Script]
+# Xóa Header yêu cầu chuẩn xác (Đã khắc phục hoàn toàn lỗi chính tả worker)
+deleteHeader_RC = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
+deleteHeader_Firebase = type=http-request,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/deleteHeader.js?v=20261108_48,timeout=60
+
+# Kích hoạt gói thuê bao & Ép thông số thời gian quay video 1 phút qua Firebase
+revenuecat = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/.+\/(receipts|subscribers),script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_minhhiep08.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
+locket_rc = type=http-response,pattern=^https?:\/\/firebaseremoteconfig\.googleapis\.com\/.+,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Unlocked.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
+
+# Photobooth & Bộ lọc AI
+locket_pb_req = type=http-request,pattern=^https?:\/\/(us-central1-locket-4252a\.cloudfunctions\.net|api\.locketcamera\.com)\/generateFilteredImage,script-path=https://locket-vip.mhiep20077.workers.dev/js/Locket_Photobooth.js?v=20261108_48,requires-body=true,max-size=-1,timeout=60
+
+# Sửa profile và mở khóa bộ lọc an toàn, không ảnh hưởng bạn bè
+locket_change_profile = type=http-request,pattern=^https:\/\/api\.locketcamera\.com\/changeProfileInfo,script-path=https://locket-vip.mhiep20077.workers.dev/js/locket_filter_unlock.js?v=20261108_48,timeout=60
+locket_filter_resp = type=http-response,pattern=^https?:\/\/api\.locketcamera\.com\/(v\d+\/)?(user|filters|settings)\/.+,requires-body=true,max-size=-1,script-path=https://locket-vip.mhiep20077.workers.dev/js/locket_filter_unlock.js?v=20261108_48,timeout=60
+
+[MITM]
+ca-passphrase = Shadowrocket
+ca-p12 = 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
+enable = true
+hostname = %APPEND% api.revenuecat.com, firebaseremoteconfig.googleapis.com, api.locketcamera.com, *.locketcamera.com, us-central1-locket-4252a.cloudfunctions.net, locket-vip.mhiep20077.workers.dev, locket-mod-backend.onrender.com
